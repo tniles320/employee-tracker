@@ -1,32 +1,4 @@
--- DROP DATABASE employee_tracker_db --
-
--- CREATE DATABASE employee_tracker_db; --
-
 USE employee_tracker_db;
-
-/*
-CREATE TABLE employee (
-id INT AUTO_INCREMENT NOT NULL,
-first_name VARCHAR(30) NOT NULL,
-last_name VARCHAR(30) NOT NULL,
-role_id INT(10) NOT NULL,
-manager_id INT(10),
-PRIMARY KEY(id)
-);
-
-CREATE TABLE role (
-id INT AUTO_INCREMENT NOT NULL,
-title VARCHAR(30) NOT NULL,
-salary DECIMAL(10,2) NOT NULL,
-department_id INT(10) NOT NULL,
-PRIMARY KEY(id)
-);
-
-CREATE TABLE department (
-id INT(10) AUTO_INCREMENT NOT NULL,
-name VARCHAR(30) NOT NULL,
-PRIMARY KEY(id)
-);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 	VALUES
@@ -57,4 +29,9 @@ INSERT INTO department (name)
         ("Engineering"),
         ("Legal"),
         ("Finance");
-*/
+
+SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS employee, role.title, department.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS manager
+FROM employee e
+INNER JOIN role ON e.role_id = role.id
+INNER JOIN department on role.department_id = department.id
+LEFT JOIN employee m ON m.id = e.manager_id
