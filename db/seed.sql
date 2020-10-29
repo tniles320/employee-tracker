@@ -1,17 +1,11 @@
 USE employee_tracker_db;
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
+INSERT INTO department (name)
 	VALUES
-		("Gary", "Clark Jr", 3, null),
-        ("Valen", "Dreth", 5, null),
-		("Taylor", "Niles", 4, 1),
-        ("Tony", "Royster Jr", 1, null),
-        ("Nick", "Troup", 2, 4),
-        ("Brandon", "Sankey", 6, 2),
-        ("Tiffany", "Tang", 2, 4),
-        ("Susan", "Turner", 7, null),
-        ("Tony", "Stark", 6, 2),
-        ("April", "May", 4, 1);
+		("Sales"),
+        ("Engineering"),
+        ("Legal"),
+        ("Finance");
         
 INSERT INTO role (title, salary, department_id)
 	VALUES
@@ -23,15 +17,22 @@ INSERT INTO role (title, salary, department_id)
         ("Lawyer", 190000, 3),
         ("Accountant", 125000, 4);
 
-INSERT INTO department (name)
-	VALUES
-		("Sales"),
-        ("Engineering"),
-        ("Legal"),
-        ("Finance");
-
-SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS employee, role.title, department.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS manager
-FROM employee e
-INNER JOIN role ON e.role_id = role.id
-INNER JOIN department on role.department_id = department.id
-LEFT JOIN employee m ON m.id = e.manager_id
+        
+INSERT INTO employee (first_name, last_name, role_id, manager_id)
+	VALUES 
+		("Tony", "Royster Jr", 1, null),
+        ("Nick", "Troup", 2, 1),
+		("Tiffany", "Tang", 2, 1),
+		("Gary", "Clark Jr", 3, null),
+        ("Taylor", "Niles", 4, 3),
+        ("April", "May", 4, 3),
+        ("Valen", "Dreth", 5, null),
+        ("Brandon", "Sankey", 6, 5),
+        ("Tony", "Stark", 6, 5),
+        ("Susan", "Turner", 7, null);
+/*
+SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, salary, employee.manager_id AS manager
+FROM employee
+INNER JOIN role ON employee.role_id = role.id
+INNER JOIN department ON role.department_id = department.id
+*/
