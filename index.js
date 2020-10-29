@@ -3,7 +3,7 @@ const inquirer = require("inquirer");
 const cTable = require('console.table');
 const { restoreDefaultPrompts } = require("inquirer");
 
-const mysqlQuery = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, salary, employee.manager_id AS manager FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id"
+const mysqlQuery = "SELECT e.id, e.first_name, e.last_name, role.title, department.name AS department, role.salary, concat(m.first_name, ' ' ,  m.last_name) AS manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id"
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -65,7 +65,7 @@ const viewEmployeesDepartment = () => {
 
 const viewEmployeesManager = () => {
   const managerArray = [];
-  connection.query('SELECT CONCAT(first_name, " ", last_name) AS manager FROM employee WHERE role_id = 1 OR role_id = 3 OR role_id = 5;', (err, res) => {
+  connection.query('SELECT employee.id, CONCAT(first_name, " ", last_name) AS manager FROM employee WHERE role_id = 1 OR role_id = 3 OR role_id = 5;', (err, res) => {
     if(err) throw err;
     for(let i = 0; i < res.length; i++) {
       managerArray.push(res[i].manager)
@@ -78,9 +78,14 @@ const viewEmployeesManager = () => {
         choices: managerArray
       }
     ]).then((result) => {
-      connection.query(`${mysqlQuery} WHERE employee.manager_id = ?`, [result.managerChoice], (err, managerRes) => {
+      for(let i = 0; i < res.length; i++) {
+        if(result.managerChoice === res[i].manager) {
+          managerID = res[i].id;
+        }
+      }
+      connection.query(`${mysqlQuery} WHERE e.manager_id = ?`, [managerID], (err, managerRes) => {
         if(err) throw err;
-        console.table(managerRes)
+        console.table(managerRes);
         restartPrompt();
       })
     })

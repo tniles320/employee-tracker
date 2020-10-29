@@ -24,11 +24,11 @@ INSERT INTO employee (first_name, last_name, role_id, manager_id)
         ("Nick", "Troup", 2, 1),
 		("Tiffany", "Tang", 2, 1),
 		("Gary", "Clark Jr", 3, null),
-        ("Taylor", "Niles", 4, 3),
-        ("April", "May", 4, 3),
+        ("Taylor", "Niles", 4, 4),
+        ("April", "May", 4, 4),
         ("Valen", "Dreth", 5, null),
-        ("Brandon", "Sankey", 6, 5),
-        ("Tony", "Stark", 6, 5),
+        ("Brandon", "Sankey", 6, 7),
+        ("Tony", "Stark", 6, 7),
         ("Susan", "Turner", 7, null);
 /*
 SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, salary, employee.manager_id AS manager
