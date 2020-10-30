@@ -119,7 +119,7 @@ const addEmployee = () => {
       {
         type: "number",
         name: "manager",
-        message: "What is the their manager's id number?"
+        message: "What is the their manager's id number? (If none, leave blank)"
       }
     ]).then((answers) => {
       for(let i = 0; i < res.length; i++) {
@@ -296,31 +296,92 @@ const removeRole = () => {
       {
         type: "list",
         name: "title",
-        message: "What is the title of this role?",
+        message: "What is the title of the role you want to remove?",
         choices: roleArray
       }
-    ]).then((res) => {
+    ]).then((result) => {
       inquirer.prompt([
         {
           type: "list",
           name: "correctInfo",
-          message: `Are you sure you want to remove ${res.title}?`,
+          message: `Are you sure you want to remove ${result.title}?`,
           choices: ["Yes", "No"]
         }
       ]).then((answer) => {
         if(answer.correctInfo === "Yes") {
-          connection.query("DELETE FROM role WHERE title = ?",[res.title], (err, response) => {
+          connection.query("DELETE FROM role WHERE title = ?",[result.title], (err, response) => {
             if(err) throw err;
             console.log("Role deleted")
             restartPrompt();
           });
         } else {
           restartPrompt();
-        }
-      })
-    })
+        };
+      });
+    });
   });
+};
+
+const viewDepartments = () => {
+  connection.query("SELECT id, name AS department FROM department", (err, res) => {
+      if(err) throw err;
+      console.table(res);
+      restartPrompt();
+  })
 }
+
+const addDepartment = () => {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "name",
+      message: "What is the name of this department?"
+    },
+  ]).then((answer) => {
+    connection.query("INSERT INTO department(name) VALUES(?)",[answer.name], (err, response) => {
+      if(err) throw err;
+      console.log("Department added")
+      restartPrompt();
+    });
+  });
+};
+
+const removeDepartment = () => {
+  const departmentArray = [];
+  connection.query("SELECT name FROM department", (err, res) => {
+    if(err) throw err;
+    for(let i = 0; i < res.length; i++) {
+      departmentArray.push(res[i].name)
+    }
+    inquirer.prompt([
+      {
+        type: "list",
+        name: "name",
+        message: "What is the name of the department you want to remove?",
+        choices: departmentArray
+      }
+    ]).then((result) => {
+      inquirer.prompt([
+        {
+          type: "list",
+          name: "correctInfo",
+          message: `Are you sure you want to remove ${result.name}?`,
+          choices: ["Yes", "No"]
+        }
+      ]).then((answer) => {
+        if(answer.correctInfo === "Yes") {
+          connection.query("DELETE FROM department WHERE name = ?",[result.name], (err, response) => {
+            if(err) throw err;
+            console.log("Department deleted")
+            restartPrompt();
+          });
+        } else {
+          restartPrompt();
+        };
+      });
+    });
+  });
+};
 
 connection.connect(function (err) {
     if(err) throw err;
@@ -382,13 +443,13 @@ const questionPrompt = () => {
               removeRole();
               break;
           case "View departments":
-              //viewDepartment();
+              viewDepartments();
               break;
           case "Add department":
-              //addDepartment();
+              addDepartment();
               break;
           case "Remove department":
-              //removeDepartment;
+              removeDepartment();
               break;
           default:
               return;
