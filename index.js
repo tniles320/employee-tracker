@@ -123,7 +123,7 @@ const addEmployee = () => {
       {
         type: "list",
         name: "role",
-        message: "What is the their role's id number?",
+        message: "What is the their role?",
         choices: roleArray
       },
       {
@@ -203,6 +203,11 @@ const updateEmpRole = () => {
         type: "input",
         name: "last_name",
         message: "What is the employee's last name?"
+      },
+      {
+        type: "number",
+        name: "id",
+        message: "What is the employee's id number?"
       }
     ]).then((res) => {
       const titleArr = [];
@@ -222,7 +227,7 @@ const updateEmpRole = () => {
             roleID = result[i].id;
           }
         }
-        connection.query("UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?",[roleID, res.first_name, res.last_name], (err, response) => {
+        connection.query("UPDATE employee SET role_id = ? WHERE id = ? AND first_name = ? AND last_name = ?",[roleID, res.id, res.first_name, res.last_name], (err, response) => {
           if(err) throw err;
           console.log("Employee updated")
           restartPrompt();
@@ -246,12 +251,17 @@ const updateEmpManager = () => {
       message: "What is the employee's last name?"
     },
     {
+      type: "number",
+      name: "id",
+      message: "What is the employee's id number?"
+    },
+    {
       type: "input",
       name: "manager_id",
       message: "What is the new manager's id number?"
     }
   ]).then((res) => {
-    connection.query("UPDATE employee SET manager_id = ? WHERE first_name = ? AND last_name = ?",[res.manager_id, res.first_name, res.last_name], (err, response) => {
+    connection.query("UPDATE employee SET manager_id = ? WHERE id = ? AND first_name = ? AND last_name = ?",[res.manager_id, res.id, res.first_name, res.last_name], (err, response) => {
       if(err) throw err;
       console.log("Employee's manager updated")
       restartPrompt();
