@@ -30,9 +30,3 @@ INSERT INTO employee (first_name, last_name, role_id, manager_id)
         ("Brandon", "Sankey", 6, 7),
         ("Tony", "Stark", 6, 7),
         ("Susan", "Turner", 7, null);
-/*
-SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, salary, employee.manager_id AS manager
-FROM employee
-INNER JOIN role ON employee.role_id = role.id
-INNER JOIN department ON role.department_id = department.id
-*/

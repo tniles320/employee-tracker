@@ -403,6 +403,40 @@ const removeDepartment = () => {
   });
 };
 
+// displays combined salaries from a specific department
+const combinedSalaries = () => {
+  const departmentArray = [];
+  connection.query("SELECT id, name FROM department", (err, res) => {
+    if(err) throw err;
+    for(let i = 0; i < res.length; i++) {
+      departmentArray.push(res[i].name)
+    }
+    inquirer.prompt([
+      {
+        type: "list",
+        name: "name",
+        message: "Which department do you want to view the combined salaries for?",
+        choices: departmentArray
+      }
+    ]).then((answer) => {
+      for(let i = 0; i < res.length; i++) {
+        if(answer.name === res[i].name) {
+          departmentID = res[i].id;
+        }
+      }
+      connection.query("SELECT salary FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE department_id = ?",[departmentID], (err, result) => {
+        if(err) throw err;
+        let combinedSalary = 0;
+        for(let i = 0; i < result.length; i++) {
+          combinedSalary += result[i].salary;
+        }
+        console.log(`Combined salaries from ${answer.name} is: $${combinedSalary}`)
+        restartPrompt();
+      });
+    });
+  });
+}
+
 // connects to mysql
 connection.connect(function (err) {
     if(err) throw err;
@@ -429,7 +463,8 @@ const questionPrompt = () => {
             "Remove role",
             "View departments",
             "Add department",
-            "Remove department"
+            "Remove department",
+            "View combined salaries by department"
         ]
       }
   ]).then((res) => {
@@ -472,6 +507,9 @@ const questionPrompt = () => {
               break;
           case "Remove department":
               removeDepartment();
+              break;
+          case "View combined salaries by department":
+              combinedSalaries();
               break;
           default:
               return;
