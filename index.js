@@ -127,11 +127,14 @@ const addEmployee = () => {
         choices: roleArray
       },
       {
-        type: "number",
+        type: "input",
         name: "manager",
         message: "What is the their manager's id number? (If none, leave blank)"
       }
     ]).then((answers) => {
+      if(answers.manager === "") {
+        answers.manager = null;
+      }
       for(let i = 0; i < res.length; i++) {
         if(answers.role === res[i].title) {
           roleID = res[i].id;
@@ -158,18 +161,23 @@ const removeEmployee = () => {
       type: "input",
       name: "last_name",
       message: "What is the employee's last name?"
+    },
+    {
+      type: "number",
+      name: "id",
+      message: "What is the employee's id number?"
     }
   ]).then((res) => {
     inquirer.prompt([
       {
         type: "list",
         name: "correctInfo",
-        message: `Is this correct? <${res.first_name} ${res.last_name}> (case sensitive)`,
+        message: `Is this correct? <${res.first_name} ${res.last_name}, id: ${res.id}> (case sensitive)`,
         choices: ["Yes", "No"]
       }
     ]).then((answer) => {
       if(answer.correctInfo === "Yes") {
-        connection.query("DELETE FROM employee WHERE first_name = ? AND last_name = ?",[res.first_name, res.last_name], (err, response) => {
+        connection.query("DELETE FROM employee WHERE id = ? AND first_name = ? AND last_name = ?",[res.id, res.first_name, res.last_name], (err, response) => {
           if(err) throw err;
           console.log("Employee deleted")
           restartPrompt();
