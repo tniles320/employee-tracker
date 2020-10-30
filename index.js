@@ -92,6 +92,85 @@ const viewEmployeesManager = () => {
   })
 }
 
+const addEmployee = () => {
+  const roleArray = [];
+  connection.query("SELECT id, title FROM role", (err, res) => {
+    if(err) throw err;
+    console.log(res)
+    for(let i = 0; i < res.length; i++) {
+      roleArray.push(res[i].title)
+    }
+    inquirer.prompt([
+      {
+        type: "input",
+        name: "first_name",
+        message: "What is the employee's first name?"
+      },
+      {
+        type: "input",
+        name: "last_name",
+        message: "What is the their last name?"
+      },
+      {
+        type: "list",
+        name: "role",
+        message: "What is the their role's id number?",
+        choices: roleArray
+      },
+      {
+        type: "number",
+        name: "manager",
+        message: "What is the their manager's id number?"
+      }
+    ]).then((answers) => {
+      for(let i = 0; i < res.length; i++) {
+        if(answers.role === res[i].title) {
+          roleID = res[i].id;
+        }
+      }
+      connection.query("INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)",[answers.first_name, answers.last_name, roleID, answers.manager], (err, response) => {
+        if(err) throw err;
+        console.log("Employee added")
+        restartPrompt();
+      });
+    });
+  });
+};
+
+const removeEmployee = () => {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "first_name",
+      message: "What is the employee's first name?"
+    },
+    {
+      type: "input",
+      name: "last_name",
+      message: "What is the employee's last name?"
+    }
+  ]).then((res) => {
+    inquirer.prompt([
+      {
+        type: "list",
+        name: "correctInfo",
+        message: `Is this correct? <${res.first_name} ${res.last_name}> (case sensitive)`,
+        choices: ["Yes", "No"]
+      }
+    ]).then((answer) => {
+      if(answer.correctInfo === "Yes") {
+        connection.query("DELETE FROM employee WHERE first_name = ? AND last_name = ?",[res.first_name, res.last_name], (err, response) => {
+          if(err) throw err;
+          console.log("Employee deleted")
+          restartPrompt();
+        });
+      } else {
+        removeEmployee();
+      }
+    })
+  })
+}
+
 connection.connect(function (err) {
     if(err) throw err;
     console.log(`Connected as id ${connection.threadId}`);
@@ -100,65 +179,68 @@ connection.connect(function (err) {
 const questionPrompt = () => {
   inquirer.prompt([
       {
-          type: "list",
-          name: "choicePrompt",
-          message: "What would you like to do?",
-          choices: [
-              "View all employees",
-              "View employees by department",
-              "View employees by manager",
-              "Add employee",
-              "Remove employee",
-              "Update employee role",
-              "Update employee manager",
-              "View roles",
-              "Add role",
-              "Remove role",
-              "View departments",
-              "Add department",
-              "Remove department"
-          ]
+        type: "list",
+        name: "choicePrompt",
+        message: "What would you like to do?",
+        choices: [
+            "View all employees",
+            "View employees by department",
+            "View employees by manager",
+            "Add employee",
+            "Remove employee",
+            "Update employee role",
+            "Update employee manager",
+            "View roles",
+            "Add role",
+            "Remove role",
+            "View departments",
+            "Add department",
+            "Remove department"
+        ]
       }
   ]).then((res) => {
       switch (res.choicePrompt) {
           case "View all employees":
               viewAllEmployees();
-            break;
+              break;
           case "View employees by department":
               viewEmployeesDepartment();
-            break;
+              break;
           case "View employees by manager":
               viewEmployeesManager();
-            break;
+              break;
           case "Add employee":
-              //;
-            break;
+              addEmployee();
+              break;
           case "Remove employee":
-              //;
-            break;
+              removeEmployee();
+              break;
           case "Update employee role":
-              //;
-            break;
+              //updateEmpRole();
+              break;
           case "Update employee manager":
-              //;
-            break;
+              //updateEmpManager();
+              break;
           case "View roles":
-              //;
-            break;
+              //viewRoles();
+              break;
+          case "Add role":
+              //addRole();
+              break;
           case "Remove role":
-              //;
-            break;
+              //removeRole();
+              break;
           case "View departments":
-              //;
-            break;
+              //viewDepartment();
+              break;
           case "Add department":
-              //;
-            break;
+              //addDepartment();
+              break;
           case "Remove department":
-              //;
-            break;
+              //removeDepartment;
+              break;
           default:
-            return;
+              return;
           };
   });
 };
