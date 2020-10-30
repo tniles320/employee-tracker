@@ -96,7 +96,6 @@ const addEmployee = () => {
   const roleArray = [];
   connection.query("SELECT id, title FROM role", (err, res) => {
     if(err) throw err;
-    console.log(res)
     for(let i = 0; i < res.length; i++) {
       roleArray.push(res[i].title)
     }
@@ -171,6 +170,74 @@ const removeEmployee = () => {
   })
 }
 
+const updateEmpRole = () => {
+  connection.query("SELECT id, title FROM role", (err, result) => {
+    if(err) throw err;
+    inquirer.prompt([
+      {
+        type: "input",
+        name: "first_name",
+        message: "What is the employee's first name?"
+      },
+      {
+        type: "input",
+        name: "last_name",
+        message: "What is the employee's last name?"
+      }
+    ]).then((res) => {
+      const titleArr = [];
+      for(let i = 0; i < result.length; i++) {
+        titleArr.push(result[i].title)
+      }
+      inquirer.prompt([
+        {
+          type: "list",
+          name: "newRole",
+          message: "What role will this employee have now?",
+          choices: titleArr
+        }
+      ]).then((answer) => {
+        for(let i = 0; i < result.length; i++) {
+          if(result[i].title === answer.newRole) {
+            roleID = result[i].id;
+          }
+        }
+        connection.query("UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?",[roleID, res.first_name, res.last_name], (err, response) => {
+          if(err) throw err;
+          console.log("Employee updated")
+          restartPrompt();
+        });
+      });
+    });
+  });
+};
+
+const updateEmpManager = () => {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "first_name",
+      message: "What is the employee's first name?"
+    },
+    {
+      type: "input",
+      name: "last_name",
+      message: "What is the employee's last name?"
+    },
+    {
+      type: "input",
+      name: "manager_id",
+      message: "What is the new manager's id number?"
+    }
+  ]).then((res) => {
+    connection.query("UPDATE employee SET manager_id = ? WHERE first_name = ? AND last_name = ?",[res.manager_id, res.first_name, res.last_name], (err, response) => {
+      if(err) throw err;
+      console.log("Employee's manager updated")
+      restartPrompt();
+    });
+  });
+};
+
 connection.connect(function (err) {
     if(err) throw err;
     console.log(`Connected as id ${connection.threadId}`);
@@ -188,8 +255,8 @@ const questionPrompt = () => {
             "View employees by manager",
             "Add employee",
             "Remove employee",
-            "Update employee role",
-            "Update employee manager",
+            "Update an employee's role",
+            "Update an employee's manager",
             "View roles",
             "Add role",
             "Remove role",
@@ -215,11 +282,11 @@ const questionPrompt = () => {
           case "Remove employee":
               removeEmployee();
               break;
-          case "Update employee role":
-              //updateEmpRole();
+          case "Update an employee's role":
+              updateEmpRole();
               break;
-          case "Update employee manager":
-              //updateEmpManager();
+          case "Update an employee's manager":
+              updateEmpManager();
               break;
           case "View roles":
               //viewRoles();
