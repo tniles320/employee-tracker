@@ -3,8 +3,12 @@ const inquirer = require("inquirer");
 const cTable = require('console.table');
 const { restoreDefaultPrompts } = require("inquirer");
 
-const mysqlQuery = "SELECT e.id, e.first_name, e.last_name, role.title, department.name AS department, role.salary, concat(m.first_name, ' ' ,  m.last_name) AS manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id"
+const mysqlQuery = "SELECT e.id, e.first_name, e.last_name, role.title, department.name AS department, role.salary, concat(m.first_name, ' ' ,  m.last_name) AS manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id";
 
+// displays "EMPLOYEE TRACKER"
+console.log(" ______   __     __   _____    __         ____   ___   ___  ______   ______\n|  ____| |  \\   /  | |  _  \\  |  |       /    \\  \\  \\_/  / |  ____| |  ____|\n| |__    |   \\_/   | | |_ | | |  |      /  /\\  \\  \\     /  | |__    | |__\n|  __|   |         | |   __/  |  |      | |  | |   |   |   |  __|   |  __|\n| |____  |  |\\ /|  | |  |     |  |____  \\  \\/  /   |   |   | |____  | |____\n|______| |__|   |__| |__|     |_______|  \\____/    |___|   |______| |______|\n\n ________   ______     _____     _____   ___ ___  ______   ______\n|__    __| |   _  \\   /  _  \\   /  ___| |  |/  / |  ____| |   _  \\\n   |  |    |  |_ | | |  /_\\  | |  /     |     /  | |__    |  |_ | |\n   |  |    |      /  |   _   | | |      |    \\   |  __|   |      /\n   |  |    |  |\\  \\  |  / \\  | |  \\ __  |  |  \\  | |____  |  |\\  \\\n   |__|    |__| \\__\\ |_/   \\_|  \\_____| |__|\\__\\ |______| |__| \\__\\\n\n");
+
+// variable for mysql connection
 const connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -13,6 +17,7 @@ const connection = mysql.createConnection({
     database: "employee_tracker_db"
 });
 
+// prompts user to restart questions or not
 const restartPrompt = () => {
   inquirer.prompt([
     {
@@ -31,6 +36,7 @@ const restartPrompt = () => {
   })
 }
 
+// displays all employees
 const viewAllEmployees = () => {
     connection.query(mysqlQuery, (err, res) => {
         if(err) throw err;
@@ -39,6 +45,7 @@ const viewAllEmployees = () => {
     })
 }
 
+// displays employees by department
 const viewEmployeesDepartment = () => {
   const departmentArray = [];
   connection.query("SELECT name FROM department", (err, res) => {
@@ -63,6 +70,7 @@ const viewEmployeesDepartment = () => {
   })
 }
 
+// displays employees under a chosen manager
 const viewEmployeesManager = () => {
   const managerArray = [];
   connection.query('SELECT employee.id, CONCAT(first_name, " ", last_name) AS manager FROM employee WHERE role_id = 1 OR role_id = 3 OR role_id = 5;', (err, res) => {
@@ -92,6 +100,7 @@ const viewEmployeesManager = () => {
   })
 }
 
+// adds employee
 const addEmployee = () => {
   const roleArray = [];
   connection.query("SELECT id, title FROM role", (err, res) => {
@@ -136,6 +145,7 @@ const addEmployee = () => {
   });
 };
 
+// removes employee
 const removeEmployee = () => {
   inquirer.prompt([
     {
@@ -170,6 +180,7 @@ const removeEmployee = () => {
   })
 }
 
+// updates role of employee
 const updateEmpRole = () => {
   connection.query("SELECT id, title FROM role", (err, result) => {
     if(err) throw err;
@@ -212,6 +223,7 @@ const updateEmpRole = () => {
   });
 };
 
+// updates employee's manager
 const updateEmpManager = () => {
   inquirer.prompt([
     {
@@ -238,6 +250,7 @@ const updateEmpManager = () => {
   });
 };
 
+// displays all roles
 const viewRoles = () => {
   connection.query("SELECT * FROM role", (err, res) => {
       if(err) throw err;
@@ -246,6 +259,7 @@ const viewRoles = () => {
   })
 }
 
+// adds role
 const addRole = () => {
   const departmentArray = [];
   connection.query("SELECT id, name FROM department", (err, res) => {
@@ -285,6 +299,8 @@ const addRole = () => {
   });
 };
 
+
+// removes role
 const removeRole = () => {
   const roleArray = [];
   connection.query("SELECT title FROM role", (err, res) => {
@@ -322,6 +338,7 @@ const removeRole = () => {
   });
 };
 
+// displays all departments
 const viewDepartments = () => {
   connection.query("SELECT id, name AS department FROM department", (err, res) => {
       if(err) throw err;
@@ -330,6 +347,7 @@ const viewDepartments = () => {
   })
 }
 
+// add department
 const addDepartment = () => {
   inquirer.prompt([
     {
@@ -346,6 +364,7 @@ const addDepartment = () => {
   });
 };
 
+// removes department
 const removeDepartment = () => {
   const departmentArray = [];
   connection.query("SELECT name FROM department", (err, res) => {
@@ -383,11 +402,13 @@ const removeDepartment = () => {
   });
 };
 
+// connects to mysql
 connection.connect(function (err) {
     if(err) throw err;
     console.log(`Connected as id ${connection.threadId}`);
 });
 
+// prompts user with list of questions and calls function based off choice
 const questionPrompt = () => {
   inquirer.prompt([
       {
@@ -457,4 +478,5 @@ const questionPrompt = () => {
   });
 };
 
+// init
 questionPrompt();
