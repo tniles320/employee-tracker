@@ -238,6 +238,90 @@ const updateEmpManager = () => {
   });
 };
 
+const viewRoles = () => {
+  connection.query("SELECT * FROM role", (err, res) => {
+      if(err) throw err;
+      console.table(res);
+      restartPrompt();
+  })
+}
+
+const addRole = () => {
+  const departmentArray = [];
+  connection.query("SELECT id, name FROM department", (err, res) => {
+    if(err) throw err;
+    for(let i = 0; i < res.length; i++) {
+      departmentArray.push(res[i].name)
+    }
+    inquirer.prompt([
+      {
+        type: "input",
+        name: "title",
+        message: "What is the title of this role?"
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "What is the salary for this role?"
+      },
+      {
+        type: "list",
+        name: "department",
+        message: "What is the department for this role?",
+        choices: departmentArray
+      }
+    ]).then((answers) => {
+      for(let i = 0; i < res.length; i++) {
+        if(answers.department === res[i].name) {
+          departmentID = res[i].id;
+        }
+      }
+      connection.query("INSERT INTO role(title, salary, department_id) VALUES(?, ?, ?)",[answers.title, answers.salary, departmentID], (err, response) => {
+        if(err) throw err;
+        console.log("Role added")
+        restartPrompt();
+      });
+    });
+  });
+};
+
+const removeRole = () => {
+  const roleArray = [];
+  connection.query("SELECT title FROM role", (err, res) => {
+    if(err) throw err;
+    for(let i = 0; i < res.length; i++) {
+      roleArray.push(res[i].title)
+    }
+    inquirer.prompt([
+      {
+        type: "list",
+        name: "title",
+        message: "What is the title of this role?",
+        choices: roleArray
+      }
+    ]).then((res) => {
+      inquirer.prompt([
+        {
+          type: "list",
+          name: "correctInfo",
+          message: `Are you sure you want to remove ${res.title}?`,
+          choices: ["Yes", "No"]
+        }
+      ]).then((answer) => {
+        if(answer.correctInfo === "Yes") {
+          connection.query("DELETE FROM role WHERE title = ?",[res.title], (err, response) => {
+            if(err) throw err;
+            console.log("Role deleted")
+            restartPrompt();
+          });
+        } else {
+          restartPrompt();
+        }
+      })
+    })
+  });
+}
+
 connection.connect(function (err) {
     if(err) throw err;
     console.log(`Connected as id ${connection.threadId}`);
@@ -289,13 +373,13 @@ const questionPrompt = () => {
               updateEmpManager();
               break;
           case "View roles":
-              //viewRoles();
+              viewRoles();
               break;
           case "Add role":
-              //addRole();
+              addRole();
               break;
           case "Remove role":
-              //removeRole();
+              removeRole();
               break;
           case "View departments":
               //viewDepartment();
